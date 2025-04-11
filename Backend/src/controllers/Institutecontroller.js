@@ -1,6 +1,10 @@
 import CourseSchema from "../models/CoursesSchema.js";
 import InstituteSchema from "../models/InstituteSchema.js";
 import InstructorSchema from "../models/Instructor.js";
+import LectureSchema from "../models/LecturesSchema.js";
+import ModuleSchema from "../models/ModuleSchema.js";
+import QuestionSchema from "../models/QuestionSchema.js";
+import QuizSchema from "../models/QuizSchema.js";
 
 export const createInstitute = async (req, res) => {
   try {
@@ -226,6 +230,216 @@ export const addCourse = async (req, res) => {
     });
   } catch (error) {
     console.error("Error adding course:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const addModule = async (req, res) => {
+  try {
+    const { Title, Description, Course } = req.body;
+    console.log(Title, Description, Course);
+    if (!Title || !Description || !Course) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const module = new ModuleSchema({
+      Title,
+      Description,
+      Course,
+    });
+
+    await module.save();
+
+    await CourseSchema.findByIdAndUpdate(
+      Course,
+      { $push: { Modules: module._id } },
+      { new: true }
+    );
+
+    res.status(201).json({
+      message: "Module added successfully",
+      module,
+    });
+  } catch (error) {
+    console.error("Error adding module:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const addLecture = async (req, res) => {
+  try {
+    const { Title, Description, Module } = req.body;
+    console.log(Title, Description, Module);
+    if (!Title || !Description || !Module) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const lecture = new LectureSchema({
+      Title,
+      Description,
+      Module,
+    });
+
+    await lecture.save();
+
+    await ModuleSchema.findByIdAndUpdate(
+      Module,
+      { $push: { Lectures: lecture._id } },
+      { new: true }
+    );
+
+    res.status(201).json({
+      message: "Lecture added successfully",
+      lecture,
+    });
+  } catch (error) {
+    console.error("Error adding lecture:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const addQuestion = async (req, res) => {
+  try {
+    const { Question, Options, Answer, Quiz } = req.body;
+    console.log(Question, Options, Answer, Quiz);
+
+    if (!Question || !Options || !Answer || !Quiz) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const question = new QuestionSchema({
+      Question,
+      Options,
+      Answer,
+      Quiz,
+    });
+
+    await question.save();
+
+    await QuizSchema.findByIdAndUpdate(
+      Quiz,
+      { $push: { Questions: question._id } },
+      { new: true }
+    );
+
+    res.status(201).json({
+      message: "Question added successfully",
+      question,
+    });
+  } catch (error) {
+    console.error("Error adding question:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const addQuiz = async (req, res) => {
+  try {
+    const { Title, Description,Duration,Lecture } = req.body;
+    console.log(Title, Description,  Duration, Lecture);
+    if (!Title || !Description || !Duration || !Lecture) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const quiz = new QuizSchema({
+      Title,
+      Description,
+      Duration,
+      Lecture,
+    });
+
+    await quiz.save();
+    const lectureData = await LectureSchema.findById(Lecture);
+    if (!lectureData) {
+      return res.status(404).json({ message: "Lecture not found" });
+    }
+    console.log(lectureData);
+
+    await LectureSchema.findByIdAndUpdate(
+      Lecture,
+      { $push: { Quiz: quiz._id } },
+      { new: true }
+    );
+
+    res.status(201).json({
+      message: "Quiz added successfully",
+      quiz,
+    });
+  } catch (error) {
+    console.error("Error adding quiz:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const addTest = async (req, res) => {
+  try {
+    const { Title, Description, Marks, Duration, Module } = req.body;
+    console.log(Title, Description, Marks, Duration, Module);
+    if (!Title || !Description || !Marks || !Duration || !Module) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const test = new QuizSchema({
+      Title,
+      Description,
+      Marks,
+      Duration,
+      Module,
+    });
+
+    await test.save();
+
+    const module = await ModuleSchema.findById(Module);
+    if (!module) {
+      return res.status(404).json({ message: "Module not found" });
+    }
+    console.log(module);
+
+    await ModuleSchema.findByIdAndUpdate(
+      Module,
+      { $push: { Test: test._id } },
+      { new: true }
+    );
+
+    res.status(201).json({
+      message: "Test added successfully",
+      test,
+    });
+  } catch (error) {
+    console.error("Error adding test:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const addExam = async (req, res) => {
+  try {
+    const { Title, Description, Marks, Duration, Course } = req.body;
+    console.log(Title, Description, Marks, Duration, Course);
+    if (!Title || !Description || !Marks || !Duration || !Course) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const exam = new QuizSchema({
+      Title,
+      Description,
+      Marks,
+      Duration,
+      Course,
+    });
+
+    await exam.save();
+
+    await CourseSchema.findByIdAndUpdate(
+      Course,
+      { $push: { Exam: exam._id } },
+      { new: true }
+    );
+
+    res.status(201).json({
+      message: "Exam added successfully",
+      exam,
+    });
+  } catch (error) {
+    console.error("Error adding exam:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

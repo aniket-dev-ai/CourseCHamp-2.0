@@ -37,4 +37,4 @@ const instructorSchema = new mongoose.Schema({
 })
 
 const InstructorSchema = mongoose.model("Instructor", instructorSchema);
-export default InstructorSchema;
+export default InstructorSchema;                                                                                                                                

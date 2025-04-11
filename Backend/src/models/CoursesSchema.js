@@ -45,6 +45,35 @@ const courseSchema = new mongoose.Schema(
         ref: "Module",
       },
     ],
+    Rating: {
+      type: Number,
+      default: 0,
+    },
+    Reviews: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Review",
+      },
+    ],
+    RatingCount: {
+      type: Number,
+      default: 0,
+    },
+    Exam: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Quiz",
+    }],
+    ExamMarks: {
+      type: Number,
+    },
+    ExamPassed: {
+      type: Boolean,
+      default: false,
+    },
+    CertificateIssued: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
